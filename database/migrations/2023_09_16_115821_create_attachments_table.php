@@ -13,7 +13,7 @@ return new class extends Migration
     {
         Schema::create('attachments', function (Blueprint $table) {
             $table->id();
-            $table->integer('model_d')->unsigned();
+            $table->integer('model_id')->unsigned();
             $table->string('model_type');
             $table->string('file');
             $table->text('notes')->nullable();

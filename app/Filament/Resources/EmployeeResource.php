@@ -5,23 +5,24 @@ namespace App\Filament\Resources;
 use App\Filament\Resources\EmployeeResource\Pages;
 use App\Filament\Resources\EmployeeResource\RelationManagers\IncrementsRelationManager;
 use App\Filament\Resources\EmployeeResource\RelationManagers\LeavesRelationManager;
-use App\Models\Department;
+use App\Filament\Resources\EmployeeResource\RelationManagers\SettlementsRelationManager;
 use App\Models\Employee;
-use App\Models\User;
-use Filament\Facades\Filament;
 use Filament\Forms\Components\DatePicker;
+use Filament\Forms\Components\FileUpload;
 use Filament\Forms\Components\Radio;
+use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
+use Filament\Notifications\Notification;
 use Filament\Resources\RelationManagers\RelationGroup;
 use Filament\Resources\Resource;
 use Filament\Tables;
 use Filament\Tables\Columns\TextColumn;
+use Filament\Tables\Columns\ViewColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
-use Illuminate\Database\Eloquent\Builder;
 
 class EmployeeResource extends Resource
 {
@@ -53,20 +54,19 @@ class EmployeeResource extends Resource
                     ->relationship('user')
                     ->schema([
                         TextInput::make('name')
-                            ->label(__('Name'))
+                            ->translateLabel('Name')
                             ->required(),
                         TextInput::make('email')
-                            ->label(__('Email'))
+                            ->translateLabel('Email')
                             ->email()
                             ->required(),
                         TextInput::make('password')
-                            ->label(__('Password'))
+                            ->translateLabel('Password')
                             ->password()
                             ->visibleOn('create')
                             ->required(function (string $operation) {
                                 return $operation === 'create';
                             }),
-
                     ]),
 
                 Section::make('Details')
@@ -75,32 +75,30 @@ class EmployeeResource extends Resource
                     ->description(__('Employee Details'))
                     ->schema([
                         Select::make('department_id')
-                            ->label(__('The Department'))
+                            ->translateLabel('The Department')
                             ->relationship('department', 'name')
                             ->searchable()
                             ->preload()
                             ->required(),
-
                         DatePicker::make('joinDate')
-                            ->label(__('Join Date'))
+                            ->translateLabel('Join Date')
                             ->required(),
                         DatePicker::make('lastWorkingDate')
-                            ->label(__('Last Working Date')),
+                            ->translateLabel('Last Working Date'),
                         DatePicker::make('residencyExpiryDate')
-                            ->label(__('Residency Expiry Date'))
+                            ->translateLabel('Residency Expiry Date')
                             ->required(),
-
                         TextInput::make('initialSalary')
-                            ->label(__('Initial Salary'))
+                            ->translateLabel('Initial Salary')
                             ->numeric()
                             ->step(0.001)
                             ->default(0),
                         TextInput::make('initialLeaveTakenBalance')
-                            ->label(__('Initial Leave Taken Balance'))
+                            ->translateLabel('Initial Leave Taken Balance')
                             ->numeric()
                             ->default(0),
                         Radio::make('status')
-                            ->label(__('Status'))
+                            ->translateLabel('Status')
                             ->options([
                                 'active' => __('Active'),
                                 'resigned' => __('Resigned'),
@@ -110,25 +108,83 @@ class EmployeeResource extends Resource
                             ->inline()
                             ->default('active'),
                     ]),
-            ])->columns(4);
+                Section::make('Attachments')
+                    ->collapsed()
+                    ->schema([
+                        Repeater::make('attachments')
+                            ->defaultItems(0)
+                            ->addActionLabel('Add More')
+                            ->label('')
+                            ->relationship()
+                            ->schema([
+                                TextInput::make('notes')
+                                    ->required(),
+                                DatePicker::make('expiration_date'),
+                                FileUpload::make('file')
+                                    ->required()
+                                    ->panelAspectRatio(.15)
+                                    ->directory('emp_attachments')
+                                    ->openable()
+                                    ->downloadable()
+                                    ->previewable(true),
+                            ])
+                            ->collapsible()
+                            ->columns(3)
+                            ->columnSpanFull(),
+                    ])
+            ])
+            ->columns(4);
     }
 
     public static function table(Table $table): Table
     {
         return $table
+            // ->paginated(false)
+            // ->defaultGroup('status')
+            ->recordUrl(null)
+            ->recordAction(null)
             ->columns([
                 TextColumn::make('user.name')
-                    ->label(__('Name'))->toggleable(),
+                    ->searchable()
+                    ->alignStart()
+                    ->translateLabel('Name')
+                    ->toggleable(),
                 TextColumn::make('joinDate')
-                    ->label(__('Join Date'))->toggleable(),
+                    ->translateLabel('Join Date')
+                    ->date('d-m-Y')
+                    ->alignCenter()
+                    ->toggleable(),
                 TextColumn::make('department.name')
-                    ->label(__('The Department'))->toggleable(),
+                    ->translateLabel('The Department')
+                    ->alignCenter()
+                    ->toggleable()
+                    ->copyable(),
                 TextColumn::make('status')
-                    ->label(__('Status'))->toggleable(),
+                    ->translateLabel('Status')
+                    ->alignCenter()
+                    ->toggleable(),
                 TextColumn::make('salary')
-                    ->label(__('Salary'))->toggleable(),
-                TextColumn::make('leaves_count')->counts('leaves')->toggleable(),
-                TextColumn::make('increments_count')->counts('increments')->toggleable(),
+                    ->translateLabel('Salary')
+                    ->alignEnd()
+                    ->numeric(
+                        decimalPlaces: 3,
+                        decimalSeparator: '.',
+                        thousandsSeparator: ',',
+                    )
+                    ->toggleable(),
+                TextColumn::make('leaves_count')
+                    ->translateLabel('Leaves')
+                    ->counts('leaves')
+                    ->toggleable()
+                    ->alignCenter(),
+                TextColumn::make('increments_count')
+                    ->counts('increments')
+                    ->toggleable()
+                    ->alignCenter(),
+                ViewColumn::make('attachments')
+                    ->view('tables.columns.attachments-column')
+                    ->toggleable()
+                    ->alignCenter(),
             ])
             ->filters([
                 SelectFilter::make('department_id')
@@ -138,7 +194,26 @@ class EmployeeResource extends Resource
                     ->preload()
             ])
             ->actions([
+                Tables\Actions\ViewAction::make(),
                 Tables\Actions\EditAction::make(),
+                Tables\Actions\DeleteAction::make(),
+            ])
+            ->groupedBulkActions([
+                Tables\Actions\DeleteBulkAction::make()
+                    ->action(function () {
+                        Notification::make()
+                            ->title('Now, now, don\'t be cheeky, leave some records for others to play with!')
+                            ->warning()
+                            ->send();
+                    }),
+            ])
+            ->groups([
+                Tables\Grouping\Group::make('status')
+                    ->label('Status')
+                    ->collapsible(),
+                Tables\Grouping\Group::make('joinDate')
+                    ->label('Join Date')
+                    ->collapsible(),
             ])
             ->bulkActions([
                 Tables\Actions\BulkActionGroup::make([
@@ -153,6 +228,7 @@ class EmployeeResource extends Resource
             RelationGroup::make('Details', [
                 LeavesRelationManager::class,
                 IncrementsRelationManager::class,
+                SettlementsRelationManager::class,
             ]),
         ];
     }

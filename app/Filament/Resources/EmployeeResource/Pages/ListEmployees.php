@@ -16,4 +16,14 @@ class ListEmployees extends ListRecords
             Actions\CreateAction::make(),
         ];
     }
+
+    public function getCachedTabs(): array
+    {
+        return [
+            null => ListRecords\Tab::make('All'),
+            'active' => ListRecords\Tab::make()->query(fn ($query) => $query->where('status', 'active')),
+            'resigned' => ListRecords\Tab::make()->query(fn ($query) => $query->where('status', 'resigned')),
+            'terminated' => ListRecords\Tab::make()->query(fn ($query) => $query->where('status', 'terminated')),
+        ];
+    }
 }

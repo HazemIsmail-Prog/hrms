@@ -16,8 +16,8 @@ return new class extends Migration
             $table->id();
             $table->foreignIdFor(Employee::class);
             $table->date('date');
-            $table->integer('days');
-            $table->integer('amount');
+            $table->integer('days')->nullable();
+            $table->integer('amount')->nullable();
             $table->string('type');  // Leave - Indemnity
             $table->string('notes')->nullable();
             $table->timestamps();

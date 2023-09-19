@@ -28,6 +28,27 @@ class Employee extends Model
     {
         return $this->hasMany(Increment::class);
     }
+    public function settlements()
+    {
+        return $this->hasMany(Settlement::class);
+    }
+
+    public function attachments()
+    {
+        return $this->morphMany(Attachment::class, 'model');
+    }
+
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::deleting(function ($record) {
+            $record->leaves()->get()->each->delete();
+            $record->increments()->get()->each->delete();
+            $record->settlements()->get()->each->delete();
+            $record->attachments()->get()->each->delete();
+        });
+    }
 
 
     public function getSalaryAttribute()

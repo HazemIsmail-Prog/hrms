@@ -42,10 +42,10 @@ class DepartmentResource extends Resource
         return $form
             ->schema([
                 TextInput::make('name')
-                    ->label(__('Name'))
+                    ->translateLabel('Name')
                     ->required(),
                 Select::make('branch_id')
-                    ->label(__('The Branch'))
+                    ->translateLabel('The Branch')
                     ->relationship(name: 'branch', titleAttribute: 'name')
                     ->searchable()
                     ->preload()
@@ -59,13 +59,13 @@ class DepartmentResource extends Resource
         return $table
             ->columns([
                 TextColumn::make('name')
-                    ->label(__('Name')),
+                    ->translateLabel('Name'),
                 TextColumn::make('branch.name')
-                    ->label(__('The Branch')),
+                    ->translateLabel('The Branch'),
             ])
             ->filters([
                 SelectFilter::make('branch_id')
-                    ->label(__('The Branch'))
+                    ->translateLabel('The Branch')
                     ->relationship('branch', 'name')
                     ->multiple()
                     ->searchable()

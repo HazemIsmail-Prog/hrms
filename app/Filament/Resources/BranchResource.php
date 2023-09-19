@@ -47,7 +47,7 @@ class BranchResource extends Resource
     public static function table(Table $table): Table
     {
         return $table
-            ->columns([TextColumn::make('name')->label(__('Name'))->searchable()->sortable(),
+            ->columns([TextColumn::make('name')->translateLabel('Name')->searchable()->sortable(),
 
             ])
             ->filters([

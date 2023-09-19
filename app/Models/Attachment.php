@@ -12,14 +12,15 @@ class Attachment extends Model
     protected $guarded = [];
 
     protected $casts = [
-        'expiration_date' => 'datetime',
+        'expiration_date' => 'date:Y-m-d',
     ];
+
 
     public function leave()
     {
         return $this->morphTo();
     }
-    public function user()
+    public function employee()
     {
         return $this->morphTo();
     }
@@ -30,5 +31,15 @@ class Attachment extends Model
     public function settlement()
     {
         return $this->morphTo();
+    }
+
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::deleting(function ($attachment) {
+            unlink('storage/'. $attachment->file)
+            ;
+        });
     }
 }

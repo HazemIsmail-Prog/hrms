@@ -15,4 +15,13 @@ class Increment extends Model
         return $this->morphMany(Attachment::class, 'model');
     }
 
+    protected static function boot()
+    {
+        parent::boot();
+
+        static::deleting(function ($record) {
+            $record->attachments()->get()->each->delete();
+        });
+    }
+
 }

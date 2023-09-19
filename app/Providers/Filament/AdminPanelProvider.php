@@ -33,7 +33,7 @@ class AdminPanelProvider extends PanelProvider
     public function panel(Panel $panel): Panel
     {
         return $panel
-            ->default()
+            ->default('')
             ->id('admin')
             ->path('')
             ->login()
@@ -42,6 +42,7 @@ class AdminPanelProvider extends PanelProvider
             ->maxContentWidth('full')
             ->colors([
                 'primary' => Color::Amber,
+                'success' => Color::Green,
             ])
             ->plugins([
                 FilamentLanguageSwitchPlugin::make()
