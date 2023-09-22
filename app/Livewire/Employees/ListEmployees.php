@@ -43,7 +43,8 @@ class ListEmployees extends Component implements HasForms, HasTable
                     ->sortable(),
 
                 TextColumn::make('department.name')
-                    ->sortable(),
+                    ->sortable()
+                    ->toggleable(),
 
                 TextColumn::make('status')
                     ->label('Status')
@@ -60,26 +61,31 @@ class ListEmployees extends Component implements HasForms, HasTable
                 TextColumn::make('joinDate')
                     ->date()
                     ->alignCenter()
-                    ->sortable(),
+                    ->sortable()
+                    ->toggleable(),
 
                 TextColumn::make('salary')
                     ->alignEnd()
                     ->numeric(decimalPlaces: 3, thousandsSeparator: ',')
-                    ->sortable(),
+                    ->sortable()
+                    ->toggleable(),
 
                 TextColumn::make('net_working_days')
                     ->alignCenter()
                     ->state(function (Model $record) {
                         return $record->getNetWorkingDaysAttribute($this->toDate);
                     })
-                    ->numeric(thousandsSeparator: ','),
-
-                TextColumn::make('indemnity')
+                    ->numeric(thousandsSeparator: ',')
+                    ->toggleable(),
+                    
+                    TextColumn::make('indemnity')
                     ->alignEnd()
+                    ->money('kwd')
+                    // ->numeric(decimalPlaces: 3, thousandsSeparator: ',')
                     ->state(function (Model $record) {
                         return $record->getIndemnityAttribute($this->toDate);
                     })
-                    ->numeric(decimalPlaces: 3, thousandsSeparator: ','),
+                    ->toggleable(),
 
                 TextColumn::make('leave_balance_days')
                     ->state(function (Model $record) {
@@ -91,13 +97,16 @@ class ListEmployees extends Component implements HasForms, HasTable
 
                 TextColumn::make('leave_balance_amount')
                     ->alignEnd()
+                    ->money('kwd')
+                    // ->suffix(' KWD')
+                    // ->prefix('KWD')
                     ->state(function (Model $record) {
                         return $record->getLeaveBalanceAmountAttribute($this->toDate);
                     })
-                    ->numeric(decimalPlaces: 3, thousandsSeparator: ',')
+                    // ->numeric(decimalPlaces: 3, thousandsSeparator: ',')
                     ->toggleable(),
-            ])
-            ->filters([
+                    ])
+                    ->filters([
                 Filter::make('toDate')->form([
                     DatePicker::make('toDate')
                         // ->default(now())
