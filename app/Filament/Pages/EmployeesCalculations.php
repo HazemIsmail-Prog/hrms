@@ -4,7 +4,7 @@ namespace App\Filament\Pages;
 
 use Filament\Pages\Page;
 
-class EmployeeCustomPage extends Page
+class EmployeesCalculations extends Page
 {
     protected static ?string $navigationIcon = 'heroicon-o-calculator';
 
@@ -15,6 +15,6 @@ class EmployeeCustomPage extends Page
     protected static ?string $navigationGroup = 'Reports';
 
 
-    protected static string $view = 'filament.pages.employee-custom-page';
+    protected static string $view = 'filament.pages.employees-calculations-page';
 
 }
