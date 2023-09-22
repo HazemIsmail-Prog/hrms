@@ -23,6 +23,8 @@ use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Columns\ViewColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
+use Illuminate\Database\Eloquent\Builder;
+use Illuminate\Database\Eloquent\Model;
 
 class EmployeeResource extends Resource
 {
@@ -63,14 +65,17 @@ class EmployeeResource extends Resource
                     ->relationship('user')
                     ->schema([
                         TextInput::make('name')
-                            ->translateLabel('Name')
+                            ->label('Name')
+                            ->translateLabel()
                             ->required(),
                         TextInput::make('email')
-                            ->translateLabel('Email')
+                            ->label('Email')
+                            ->translateLabel()
                             ->email()
                             ->required(),
                         TextInput::make('password')
-                            ->translateLabel('Password')
+                            ->label('Password')
+                            ->translateLabel()
                             ->password()
                             ->visibleOn('create')
                             ->required(function (string $operation) {
@@ -90,34 +95,54 @@ class EmployeeResource extends Resource
                     ->description(__('Employee Details'))
                     ->schema([
                         Select::make('department_id')
-                            ->translateLabel('The Department')
+                            ->label('The Department')
+                            ->translateLabel()
                             ->relationship('department', 'name')
                             ->searchable()
                             ->preload()
                             ->required(),
+                        Select::make('employee_id')
+                            ->label('Reporting to')
+                            ->translateLabel()
+                            ->relationship(
+                                'employee',
+                                'name',
+                                modifyQueryUsing: fn (Builder $query,Model $record) => $query->where('id','!=',$record->id),
+                            )
+                            ->getOptionLabelFromRecordUsing(fn (Model $record) => $record->user->name)
+
+                            ->searchable()
+                            ->preload()
+                            ->required(),
                         DatePicker::make('joinDate')
-                            ->translateLabel('Join Date')
+                            ->label('Join Date')
+                            ->translateLabel()
                             ->required(),
                         DatePicker::make('lastWorkingDate')
-                            ->translateLabel('Last Working Date'),
+                            ->label('Last Working Date')
+                            ->translateLabel()->requiredIf('status', ['Resigned', 'Terminated']),
                         DatePicker::make('residencyExpiryDate')
-                            ->translateLabel('Residency Expiry Date')
+                            ->label('Residency Expiry Date')
+                            ->translateLabel()
                             ->required(),
                         TextInput::make('initialSalary')
-                            ->translateLabel('Initial Salary')
+                            ->label('Initial Salary')
+                            ->translateLabel()
                             ->numeric()
                             ->step(0.001)
                             ->default(0),
                         TextInput::make('initialLeaveTakenBalance')
-                            ->translateLabel('Initial Leave Taken Balance')
+                            ->label('Initial Leave Taken Balance')
+                            ->translateLabel()
                             ->numeric()
                             ->default(0),
                         Radio::make('status')
-                            ->translateLabel('Status')
+                            ->label('Status')
+                            ->translateLabel()
                             ->options([
-                                'active' => __('Active'),
-                                'resigned' => __('Resigned'),
-                                'terminated' => __('Terminated'),
+                                'Active' => __('Active'),
+                                'Resigned' => __('Resigned'),
+                                'Terminated' => __('Terminated'),
                             ])
                             ->columnSpanFull()
                             ->required()
@@ -168,21 +193,31 @@ class EmployeeResource extends Resource
             ->recordUrl(null)
             ->recordAction(null)
             ->columns([
+
                 TextColumn::make('user.name')
-                    ->searchable()
                     ->alignStart()
-                    ->translateLabel('Name')
+                    ->label('Name')
+                    ->translateLabel()
+                    ->searchable()
+                    ->sortable()
                     ->toggleable(),
+
                 TextColumn::make('joinDate')
-                    ->translateLabel('Join Date')
+                    ->label('Join Date')
+                    ->translateLabel()
                     ->date()
                     ->alignCenter()
+                    ->sortable()
                     ->toggleable(),
+
                 TextColumn::make('department.name')
-                    ->translateLabel('The Department')
+                    ->label('The Department')
+                    ->translateLabel()
                     ->alignCenter()
+                    ->sortable()
                     ->toggleable()
                     ->copyable(),
+
                 TextColumn::make('status')
                     ->label('Status')
                     ->translateLabel()
@@ -193,24 +228,35 @@ class EmployeeResource extends Resource
                         'Terminated' => 'danger',
                     })
                     ->alignCenter()
+                    ->sortable()
                     ->toggleable(),
+
                 TextColumn::make('salary')
-                    ->translateLabel('Salary')
+                    ->label('Salary')
+                    ->translateLabel()
+                    ->money('kwd')
                     ->alignEnd()
-                    ->numeric(
-                        decimalPlaces: 3,
-                        decimalSeparator: '.',
-                        thousandsSeparator: ',',
-                    )
+                    // ->numeric(
+                    //     decimalPlaces: 3,
+                    //     decimalSeparator: '.',
+                    //     thousandsSeparator: ',',
+                    // )
                     ->toggleable(),
+
                 TextColumn::make('leaves_count')
-                    ->translateLabel('Leaves')
+                    ->label('Leaves')
+                    ->translateLabel()
                     ->counts('leaves')
+                    ->sortable()
                     ->toggleable()
                     ->alignCenter(),
+
                 TextColumn::make('increments_count')
+                    ->label('Increaments')
+                    ->translateLabel()
                     ->counts('increments')
                     ->toggleable()
+                    ->sortable()
                     ->alignCenter(),
 
                 //     ViewColumn::make('attachments')
@@ -220,6 +266,8 @@ class EmployeeResource extends Resource
             ])
             ->filters([
                 SelectFilter::make('department_id')
+                    ->label('The Department')
+                    ->translateLabel()
                     ->relationship('department', 'name')
                     ->multiple()
                     ->searchable()

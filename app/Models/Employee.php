@@ -16,6 +16,10 @@ class Employee extends Model
     {
         return $this->hasOne(User::class);
     }
+    public function employee()
+    {
+        return $this->belongsTo(Employee::class);
+    }
     public function department()
     {
         return $this->belongsTo(Department::class);
@@ -61,7 +65,7 @@ class Employee extends Model
     {
         return Attribute::make(
             get: fn ($value) => ucfirst($value),
-            // set: fn ($value) => lowe $value * 1000,
+            set: fn ($value) => strtolower($value)
         );
     }
     protected function initSalary(): Attribute
@@ -114,7 +118,6 @@ class Employee extends Model
 
     public function totalLeaveDaysToDateExcludingHolidaysAndFridays($type, $date)
     {
-        // return 0;
         return $this->leaves->count() > 0 ? $this->leaves->sum('leaveDays') : 0;
     }
 

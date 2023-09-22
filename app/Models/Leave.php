@@ -17,6 +17,11 @@ class Leave extends Model
         'end_date' => 'date:Y-m-d',
     ];
 
+    public function employee()
+    {
+        return $this->belongsTo(Employee::class);
+    }
+
     public function attachments()
     {
         return $this->morphMany(Attachment::class, 'model');

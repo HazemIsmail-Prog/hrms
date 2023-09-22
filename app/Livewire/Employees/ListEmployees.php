@@ -15,6 +15,7 @@ use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
 use Livewire\Component;
 use Illuminate\Contracts\View\View;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Model;
 use pxlrbt\FilamentExcel\Actions\Tables\ExportBulkAction;
 use pxlrbt\FilamentExcel\Actions\Tables\ExportAction;
@@ -56,6 +57,7 @@ class ListEmployees extends Component implements HasForms, HasTable
                         'Terminated' => 'danger',
                     })
                     ->alignCenter()
+                    ->sortable()
                     ->toggleable(),
 
                 TextColumn::make('joinDate')
@@ -66,8 +68,8 @@ class ListEmployees extends Component implements HasForms, HasTable
 
                 TextColumn::make('salary')
                     ->alignEnd()
-                    ->numeric(decimalPlaces: 3, thousandsSeparator: ',')
-                    ->sortable()
+                    ->money('kwd')
+                    // ->numeric(decimalPlaces: 3, thousandsSeparator: ',')
                     ->toggleable(),
 
                 TextColumn::make('net_working_days')
@@ -77,8 +79,8 @@ class ListEmployees extends Component implements HasForms, HasTable
                     })
                     ->numeric(thousandsSeparator: ',')
                     ->toggleable(),
-                    
-                    TextColumn::make('indemnity')
+
+                TextColumn::make('indemnity')
                     ->alignEnd()
                     ->money('kwd')
                     // ->numeric(decimalPlaces: 3, thousandsSeparator: ',')
@@ -98,15 +100,13 @@ class ListEmployees extends Component implements HasForms, HasTable
                 TextColumn::make('leave_balance_amount')
                     ->alignEnd()
                     ->money('kwd')
-                    // ->suffix(' KWD')
-                    // ->prefix('KWD')
+                    // ->numeric(decimalPlaces: 3, thousandsSeparator: ',')
                     ->state(function (Model $record) {
                         return $record->getLeaveBalanceAmountAttribute($this->toDate);
                     })
-                    // ->numeric(decimalPlaces: 3, thousandsSeparator: ',')
                     ->toggleable(),
-                    ])
-                    ->filters([
+            ])
+            ->filters([
                 Filter::make('toDate')->form([
                     DatePicker::make('toDate')
                         // ->default(now())
