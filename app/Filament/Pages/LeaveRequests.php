@@ -3,6 +3,7 @@
 namespace App\Filament\Pages;
 
 use App\Models\Leave;
+use Filament\Forms\Components\Radio;
 use Filament\Pages\Page;
 use Filament\Tables\Columns\SelectColumn;
 use Filament\Tables\Columns\TextColumn;
@@ -10,6 +11,9 @@ use Filament\Tables\Columns\ViewColumn;
 use Filament\Tables\Concerns\InteractsWithTable;
 use Filament\Tables\Contracts\HasTable;
 use Filament\Tables\Table;
+use Filament\Tables\Enums\FiltersLayout;
+use Filament\Tables\Filters\Filter;
+use Illuminate\Database\Eloquent\Builder;
 
 class LeaveRequests extends Page implements HasTable
 {
@@ -23,10 +27,11 @@ class LeaveRequests extends Page implements HasTable
 
     public static function getNavigationBadge(): ?string
     {
-        return Leave::where('status','pending')->count() > 0 ?? null;
+        return Leave::where('status', 'pending')->count() > 0 ?? null;
     }
 
-    public static function getNavigationBadgeColor(): ?string {
+    public static function getNavigationBadgeColor(): ?string
+    {
         return 'danger';
     }
 
@@ -62,15 +67,23 @@ class LeaveRequests extends Page implements HasTable
                     ])
                     ->selectablePlaceholder(false),
 
-
-
-
-
-
-
             ])
             ->filters([
-                //
-            ]);
+                Filter::make('status')->form([
+                    Radio::make('status')
+                        ->options([
+                            'pending' => 'Pending',
+                            'approved' => 'Approved',
+                            'rejected' => 'Rejected',
+                        ])
+                        ->inline()
+                        ->columnSpanFull()
+                        ->default('pending')
+                ])
+                    ->columnSpanFull()
+                    ->query(function (Builder $query, array $data): Builder {
+                        return $query->where('status', $data);
+                    })
+            ], layout: FiltersLayout::AboveContent);
     }
 }
