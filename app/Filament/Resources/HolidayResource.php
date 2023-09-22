@@ -23,11 +23,13 @@ class HolidayResource extends Resource
     protected static ?string $model = Holiday::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-calendar-days';
+    
+    protected static ?string $navigationGroup = 'System Management';
 
-    public static function getNavigationBadge(): ?string
-    {
-        return static::getModel()::count();
-    }
+    // public static function getNavigationBadge(): ?string
+    // {
+    //     return static::getModel()::count();
+    // }
 
     public static function getModelLabel(): string
     {

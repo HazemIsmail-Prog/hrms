@@ -20,6 +20,8 @@ class UserResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-users';
 
+    protected static ?string $navigationGroup = 'System Management';
+
     public static function getEloquentQuery(): Builder
     {
         $query = static::getModel()::query()->whereNull('employee_id');
@@ -31,10 +33,10 @@ class UserResource extends Resource
         return $query;
     }
 
-    public static function getNavigationBadge(): ?string
-    {
-        return static::getModel()::whereNull('employee_id')->count();
-    }
+    // public static function getNavigationBadge(): ?string
+    // {
+    //     return static::getModel()::whereNull('employee_id')->count();
+    // }
 
     public static function getModelLabel(): string
     {

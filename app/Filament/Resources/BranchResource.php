@@ -21,6 +21,8 @@ class BranchResource extends Resource
     protected static ?string $model = Branch::class;
 
     protected static ?string $navigationIcon = 'heroicon-o-building-storefront';
+
+    protected static ?string $navigationGroup = 'System Management';
     
     public static function getModelLabel(): string
     {
@@ -31,10 +33,10 @@ class BranchResource extends Resource
         return __('Branches');
     }
 
-    public static function getNavigationBadge(): ?string
-    {
-        return static::getModel()::count();
-    }
+    // public static function getNavigationBadge(): ?string
+    // {
+    //     return static::getModel()::count();
+    // }
 
     public static function form(Form $form): Form
     {

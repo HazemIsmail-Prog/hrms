@@ -23,6 +23,8 @@ class DepartmentResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-queue-list';
 
+    protected static ?string $navigationGroup = 'System Management';
+
     public static function getModelLabel(): string
     {
         return __('Department');
@@ -32,10 +34,10 @@ class DepartmentResource extends Resource
         return __('Departments');
     }
 
-    public static function getNavigationBadge(): ?string
-    {
-        return static::getModel()::count();
-    }
+    // public static function getNavigationBadge(): ?string
+    // {
+    //     return static::getModel()::count();
+    // }
 
     public static function form(Form $form): Form
     {

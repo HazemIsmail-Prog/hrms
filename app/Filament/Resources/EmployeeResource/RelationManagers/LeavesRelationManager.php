@@ -2,6 +2,7 @@
 
 namespace App\Filament\Resources\EmployeeResource\RelationManagers;
 
+use App\Rules\OverlappingLeavePeriods;
 use Filament\Forms;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\FileUpload;
@@ -11,6 +12,7 @@ use Filament\Forms\Components\Repeater;
 use Filament\Forms\Components\Section;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
+use Filament\Forms\Get;
 use Filament\Resources\RelationManagers\RelationManager;
 use Filament\Tables;
 use Filament\Tables\Columns\TextColumn;
@@ -28,9 +30,9 @@ class LeavesRelationManager extends RelationManager
         return $form
             ->schema([
                 DatePicker::make('start_date')
-                    ->required(),
+                    ->required()->rule(new OverlappingLeavePeriods('dd')),
                 DatePicker::make('end_date')
-                    ->required(),
+                    ->required()->rule(new OverlappingLeavePeriods()),
                 Radio::make('type')->required()->inline()->options([
                     'unpaid' => 'Unpaid',
                     'paid' => 'Paid',

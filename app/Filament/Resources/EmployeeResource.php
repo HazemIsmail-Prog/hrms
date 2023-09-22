@@ -30,6 +30,8 @@ class EmployeeResource extends Resource
 
     protected static ?string $navigationIcon = 'heroicon-o-rectangle-stack';
 
+    protected static ?string $navigationGroup = 'Employees Management';
+
     public static function getModelLabel(): string
     {
         return __('Employee');
@@ -39,17 +41,24 @@ class EmployeeResource extends Resource
         return __('Employees');
     }
 
-    public static function getNavigationBadge(): ?string
-    {
-        return static::getModel()::count();
-    }
+    // public static function getNavigationBadge(): ?string
+    // {
+    //     return static::getModel()::count();
+    // }
+
 
     public static function form(Form $form): Form
     {
         return $form
             ->schema([
                 Section::make('Auth')
-                    ->columnSpan(1)
+                    ->columnSpan([
+                        'sm' => 1,
+                        'md' => 1,
+                        'lg' => 1,
+                        'xl' => 1,
+                        '2xl' => 1,
+                    ])
                     ->description(__('Authentication Data'))
                     ->relationship('user')
                     ->schema([
@@ -71,7 +80,13 @@ class EmployeeResource extends Resource
 
                 Section::make('Details')
                     ->columns(2)
-                    ->columnSpan(3)
+                    ->columnSpan([
+                        'sm' => 1,
+                        'md' => 1,
+                        'lg' => 1,
+                        'xl' => 2,
+                        '2xl' => 3,
+                    ])
                     ->description(__('Employee Details'))
                     ->schema([
                         Select::make('department_id')
@@ -104,11 +119,14 @@ class EmployeeResource extends Resource
                                 'resigned' => __('Resigned'),
                                 'terminated' => __('Terminated'),
                             ])
+                            ->columnSpanFull()
                             ->required()
                             ->inline()
                             ->default('active'),
                     ]),
+
                 Section::make('Attachments')
+                    ->columnSpanFull()
                     ->collapsed()
                     ->schema([
                         Repeater::make('attachments')
@@ -133,7 +151,13 @@ class EmployeeResource extends Resource
                             ->columnSpanFull(),
                     ])
             ])
-            ->columns(4);
+            ->columns([
+                'sm' => 1,
+                'md' => 1,
+                'lg' => 1,
+                'xl' => 3,
+                '2xl' => 4,
+            ]);
     }
 
     public static function table(Table $table): Table
@@ -151,7 +175,7 @@ class EmployeeResource extends Resource
                     ->toggleable(),
                 TextColumn::make('joinDate')
                     ->translateLabel('Join Date')
-                    ->date('d-m-Y')
+                    ->date()
                     ->alignCenter()
                     ->toggleable(),
                 TextColumn::make('department.name')
@@ -160,7 +184,14 @@ class EmployeeResource extends Resource
                     ->toggleable()
                     ->copyable(),
                 TextColumn::make('status')
-                    ->translateLabel('Status')
+                    ->label('Status')
+                    ->translateLabel()
+                    ->badge()
+                    ->color(fn (string $state): string => match ($state) {
+                        'Active' => 'success',
+                        'Resigned' => 'warning',
+                        'Terminated' => 'danger',
+                    })
                     ->alignCenter()
                     ->toggleable(),
                 TextColumn::make('salary')
@@ -181,10 +212,11 @@ class EmployeeResource extends Resource
                     ->counts('increments')
                     ->toggleable()
                     ->alignCenter(),
-                ViewColumn::make('attachments')
-                    ->view('tables.columns.attachments-column')
-                    ->toggleable()
-                    ->alignCenter(),
+
+                //     ViewColumn::make('attachments')
+                //         ->view('tables.columns.attachments-column')
+                //         ->toggleable()
+                //         ->alignCenter(),
             ])
             ->filters([
                 SelectFilter::make('department_id')
@@ -194,7 +226,7 @@ class EmployeeResource extends Resource
                     ->preload()
             ])
             ->actions([
-                Tables\Actions\ViewAction::make(),
+                Tables\Actions\ViewAction::make()->modalWidth('7xl'),
                 Tables\Actions\EditAction::make(),
                 Tables\Actions\DeleteAction::make(),
             ])

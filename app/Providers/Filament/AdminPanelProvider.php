@@ -2,20 +2,11 @@
 
 namespace App\Providers\Filament;
 
-use App\Filament\Resources\BranchResource;
-use App\Filament\Resources\DepartmentResource;
-use App\Filament\Resources\EmployeeResource;
-use App\Filament\Resources\HolidayResource;
-use App\Filament\Resources\UserResource;
 use BezhanSalleh\FilamentLanguageSwitch\FilamentLanguageSwitchPlugin;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
-use Filament\Navigation\NavigationBuilder;
-use Filament\Navigation\NavigationGroup;
-use Filament\Navigation\NavigationItem;
 use Filament\Pages;
-use Filament\Pages\Dashboard;
 use Filament\Panel;
 use Filament\PanelProvider;
 use Filament\Support\Colors\Color;
@@ -44,6 +35,11 @@ class AdminPanelProvider extends PanelProvider
                 'primary' => Color::Amber,
                 'success' => Color::Green,
             ])
+            ->navigationGroups([
+                'System Management',
+                'Employees Management',
+                'Reports',
+            ])->sidebarCollapsibleOnDesktop()
             ->plugins([
                 FilamentLanguageSwitchPlugin::make()
             ])
@@ -57,25 +53,6 @@ class AdminPanelProvider extends PanelProvider
                 Widgets\AccountWidget::class,
                 Widgets\FilamentInfoWidget::class,
             ])
-            ->navigation(function (NavigationBuilder $builder): NavigationBuilder {
-                return $builder->groups([
-                    NavigationGroup::make('')
-                        ->items([
-                            ...Dashboard::getNavigationItems(),
-                        ]),
-                    NavigationGroup::make('Settings')
-                        ->items([
-                            ...BranchResource::getNavigationItems(),
-                            ...DepartmentResource::getNavigationItems(),
-                            ...HolidayResource::getNavigationItems(),
-                            ...UserResource::getNavigationItems(),
-                        ]),
-                    NavigationGroup::make('')
-                        ->items([
-                            ...EmployeeResource::getNavigationItems(),
-                        ]),
-                ]);
-            })
             ->middleware([
                 EncryptCookies::class,
                 AddQueuedCookiesToResponse::class,
