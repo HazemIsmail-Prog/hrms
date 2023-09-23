@@ -118,8 +118,7 @@ class EmployeeResource extends Resource
 
                             ->searchable()
                             ->preload()
-                            ->optionsLimit(5)
-                            ->required(),
+                            ->optionsLimit(5),
                         DatePicker::make('joinDate')
                             ->label('Join Date')
                             ->translateLabel()
