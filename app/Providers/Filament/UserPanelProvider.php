@@ -2,7 +2,7 @@
 
 namespace App\Providers\Filament;
 
-use BezhanSalleh\FilamentLanguageSwitch\FilamentLanguageSwitchPlugin;
+use App\Filament\User\Pages\Auth\EditProfile;
 use Filament\Http\Middleware\Authenticate;
 use Filament\Http\Middleware\DisableBladeIconComponents;
 use Filament\Http\Middleware\DispatchServingFilamentEvent;
@@ -19,39 +19,27 @@ use Illuminate\Session\Middleware\AuthenticateSession;
 use Illuminate\Session\Middleware\StartSession;
 use Illuminate\View\Middleware\ShareErrorsFromSession;
 
-class AdminPanelProvider extends PanelProvider
+class UserPanelProvider extends PanelProvider
 {
     public function panel(Panel $panel): Panel
     {
         return $panel
-            ->default('admin')
-            ->id('admin')
-            ->path('admin')
+            ->id('user')
+            ->path('')
             ->login()
-            ->spa()
-            ->font('Alexandria')
-            ->maxContentWidth('full')
+            ->profile(EditProfile::class)
             ->colors([
-                'primary' => Color::Amber,
-                'success' => Color::Green,
+                'primary' => Color::Indigo,
             ])
-            ->navigationGroups([
-                'System Management',
-                'Employees Management',
-                'Reports',
-            ])->sidebarCollapsibleOnDesktop()
-            ->plugins([
-                FilamentLanguageSwitchPlugin::make()
-            ])
-            ->discoverResources(in: app_path('Filament/Admin/Resources'), for: 'App\\Filament\\Admin\\Resources')
-            ->discoverPages(in: app_path('Filament/Admin/Pages'), for: 'App\\Filament\\Admin\\Pages')
+            ->discoverResources(in: app_path('Filament/User/Resources'), for: 'App\\Filament\\User\\Resources')
+            ->discoverPages(in: app_path('Filament/User/Pages'), for: 'App\\Filament\\User\\Pages')
             ->pages([
                 Pages\Dashboard::class,
             ])
-            ->discoverWidgets(in: app_path('Filament/Admin/Widgets'), for: 'App\\Filament\\Admin\\Widgets')
+            ->discoverWidgets(in: app_path('Filament/User/Widgets'), for: 'App\\Filament\\User\\Widgets')
             ->widgets([
                 Widgets\AccountWidget::class,
-                Widgets\FilamentInfoWidget::class,
+                // Widgets\FilamentInfoWidget::class,
             ])
             ->middleware([
                 EncryptCookies::class,

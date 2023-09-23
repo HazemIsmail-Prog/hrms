@@ -125,15 +125,17 @@ class Employee extends Model
     {
         $date = $date ?? today();
 
-        return ($this->netWorkingDays / 365 * 30)
+        $leave_balance_days = ($this->getNetWorkingDaysAttribute($date) / 365 * 30)
             - $this->totalLeaveDaysToDateExcludingHolidaysAndFridays('paid', $date)
             - $this->init_leave_taken_balance;
+
+        return $leave_balance_days >= 0 ? $leave_balance_days : 0;
     }
 
     public function getLeaveBalanceAmountAttribute($date = null)
     {
         $date = $date ?? today();
 
-        return $this->salary / 26 * $this->leaveBalanceDays;
+        return $this->salary / 26 * $this->getLeaveBalanceDaysAttribute($date);
     }
 }
