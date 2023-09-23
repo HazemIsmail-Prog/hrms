@@ -153,7 +153,7 @@ class EmployeeResource extends Resource
                             ->columnSpanFull()
                             ->required()
                             ->inline()
-                            ->default('active'),
+                            ->default('Active'),
                     ]),
 
                 Section::make('Attachments')
