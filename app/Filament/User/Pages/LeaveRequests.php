@@ -1,10 +1,9 @@
 <?php
 
-namespace App\Filament\Admin\Pages;
+namespace App\Filament\User\Pages;
 
 use App\Models\Leave;
 use Filament\Forms\Components\Radio;
-use Filament\Notifications\Notification;
 use Filament\Pages\Page;
 use Filament\Tables\Columns\SelectColumn;
 use Filament\Tables\Columns\TextColumn;
@@ -15,8 +14,6 @@ use Filament\Tables\Table;
 use Filament\Tables\Enums\FiltersLayout;
 use Filament\Tables\Filters\Filter;
 use Illuminate\Database\Eloquent\Builder;
-use Illuminate\Database\Eloquent\Model;
-use NunoMaduro\Collision\Adapters\Phpunit\State;
 
 class LeaveRequests extends Page implements HasTable
 {
@@ -24,13 +21,16 @@ class LeaveRequests extends Page implements HasTable
 
     protected static ?string $navigationIcon = 'heroicon-o-document-text';
 
-    protected static string $view = 'filament.admin.pages.leave-requests';
+    protected static string $view = 'filament.user.pages.leave-requests';
 
     protected static ?string $navigationGroup = 'Employees Management';
 
     public static function getNavigationBadge(): ?string
     {
-        $count = Leave::query()->pending()->count();
+        $count = Leave::query()
+            ->pending()
+            ->relatedEmployees()
+            ->count();
         return $count > 0 ? $count : null;
     }
 
@@ -45,7 +45,7 @@ class LeaveRequests extends Page implements HasTable
     public static function table(Table $table): Table
     {
         return $table
-            ->query(Leave::query())
+            ->query(Leave::query()->relatedEmployees())
             ->recordUrl(null)
             ->recordAction(null)
             ->columns([

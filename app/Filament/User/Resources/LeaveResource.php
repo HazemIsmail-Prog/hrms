@@ -49,9 +49,15 @@ class LeaveResource extends Resource
         return $form
             ->schema([
                 DatePicker::make('start_date')
-                    ->required()->rule(new OverlappingLeavePeriods()),
+                    ->required()
+                    ->rule(new OverlappingLeavePeriods())
+                    ->beforeOrEqual('end_date'),
+
                 DatePicker::make('end_date')
-                    ->required()->rule(new OverlappingLeavePeriods()),
+                    ->required()
+                    ->rule(new OverlappingLeavePeriods())
+                    ->afterOrEqual('start_date'),
+
                 Radio::make('type')->required()->inline()->options([
                     'paid' => 'Paid',
                     'unpaid' => 'Unpaid',

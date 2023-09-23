@@ -30,6 +30,8 @@ class UserPanelProvider extends PanelProvider
             ->login()
             ->profile(EditProfile::class)
             ->spa()
+            ->databaseNotifications()
+            ->databaseNotificationsPolling('30s')
             ->colors([
                 'primary' => Color::Emerald,
             ])

@@ -6,6 +6,7 @@ use App\Filament\Admin\Resources\EmployeeResource\Pages;
 use App\Filament\Admin\Resources\EmployeeResource\RelationManagers\IncrementsRelationManager;
 use App\Filament\Admin\Resources\EmployeeResource\RelationManagers\LeavesRelationManager;
 use App\Filament\Admin\Resources\EmployeeResource\RelationManagers\SettlementsRelationManager;
+use App\Models\Branch;
 use App\Models\Employee;
 use Filament\Forms\Components\DatePicker;
 use Filament\Forms\Components\FileUpload;
@@ -96,10 +97,18 @@ class EmployeeResource extends Resource
                     ])
                     ->description(__('Employee Details'))
                     ->schema([
+
                         Select::make('department_id')
                             ->label('The Department')
                             ->translateLabel()
-                            ->relationship('department', 'name')
+                            ->relationship(
+                                'department',
+                                'name',
+                                modifyQueryUsing: function (Builder $query) {
+                                    $query->orderBy('branch_id');
+                                },
+                            )
+                            ->getOptionLabelFromRecordUsing(fn (Model $record) => $record->branch->name . ' - '.  $record->name)
                             ->searchable()
                             ->preload()
                             ->required(),
@@ -289,13 +298,18 @@ class EmployeeResource extends Resource
                         ->action(function (Model $record) {
                             $record->user->update(['password' => '123456']);
                             Notification::make()
-                                ->title('Done')
+                                ->title('Reset Password')
                                 ->body($record->user->name . '\'s password reseted')
                                 ->success()
                                 ->seconds(2)
-                                ->send();
+                                ->send()
+                                ->sendToDatabase(auth()->user());
+                            Notification::make()
+                                ->title('Reset Password')
+                                ->body(auth()->user()->name . ' resets your password')
+                                ->success()
+                                ->sendToDatabase($record->user);
                         }),
-
 
                     Tables\Actions\ViewAction::make()->modalWidth('7xl'),
                     Tables\Actions\EditAction::make(),

@@ -15,6 +15,6 @@ class EmployeesCalculations extends Page
     protected static ?string $navigationGroup = 'Reports';
 
 
-    protected static string $view = 'filament.pages.employees-calculations-page';
+    protected static string $view = 'filament.admin.pages.employees-calculations-page';
 
 }

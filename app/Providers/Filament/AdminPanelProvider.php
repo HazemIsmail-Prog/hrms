@@ -30,8 +30,8 @@ class AdminPanelProvider extends PanelProvider
             ->spa()
             ->font('Alexandria')
             ->maxContentWidth('full')
-            // ->databaseNotifications()
-            // ->databaseNotificationsPolling('30s')
+            ->databaseNotifications()
+            ->databaseNotificationsPolling('30s')
             ->colors([
                 'primary' => Color::Amber,
                 'success' => Color::Green,

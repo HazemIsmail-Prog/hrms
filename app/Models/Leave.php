@@ -4,6 +4,7 @@ namespace App\Models;
 
 use Carbon\Carbon;
 use Carbon\CarbonPeriod;
+use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Database\Eloquent\Factories\HasFactory;
 use Illuminate\Database\Eloquent\Model;
 
@@ -27,6 +28,16 @@ class Leave extends Model
         return $this->morphMany(Attachment::class, 'model');
     }
 
+    public function scopeRelatedEmployees(Builder $query)
+    {
+        return $query->whereRelation('employee', 'employee_id', auth()->user()->employee_id);
+    }
+
+    public function scopePending(Builder $query)
+    {
+        return $query->where('status', 'pending');
+    }
+
     protected static function boot()
     {
         parent::boot();
@@ -35,28 +46,21 @@ class Leave extends Model
             $record->attachments()->get()->each->delete();
         });
     }
-    
+
     public function getLeaveDaysAttribute()
     {
-
         $startDate = Carbon::parse($this->start_date);
         $endDate = Carbon::parse($this->end_date);
-
-        // Create a date range from the start date to the end date
         $period = CarbonPeriod::create($startDate, $endDate);
-
-        // Initialize a counter variable to keep track of the days excluding Fridays
         $actualLeaveDays = 0;
-
-        // Loop through each date in the range and exclude Fridays
         foreach ($period as $date) {
-            // dump($date);
-            if ($date->dayOfWeek !== Carbon::FRIDAY && !Holiday::where('is_rest_day', false)->pluck('date')->contains($date)) {
+            if (
+                $date->dayOfWeek !== Carbon::FRIDAY &&
+                !Holiday::where('is_rest_day', false)->pluck('date')->contains($date)
+            ) {
                 $actualLeaveDays++;
             }
         }
-
         return $actualLeaveDays;
     }
-
 }
