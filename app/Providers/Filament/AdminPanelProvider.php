@@ -24,13 +24,14 @@ class AdminPanelProvider extends PanelProvider
     public function panel(Panel $panel): Panel
     {
         return $panel
-            ->default('admin')
             ->id('admin')
             ->path('admin')
             ->login()
             ->spa()
             ->font('Alexandria')
             ->maxContentWidth('full')
+            // ->databaseNotifications()
+            // ->databaseNotificationsPolling('30s')
             ->colors([
                 'primary' => Color::Amber,
                 'success' => Color::Green,

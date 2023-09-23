@@ -15,11 +15,12 @@ use Filament\Forms\Components\Section;
 use Filament\Forms\Components\Select;
 use Filament\Forms\Components\TextInput;
 use Filament\Forms\Form;
-use Filament\Forms\Get;
 use Filament\Notifications\Notification;
 use Filament\Resources\RelationManagers\RelationGroup;
 use Filament\Resources\Resource;
 use Filament\Tables;
+use Filament\Tables\Actions\Action;
+use Filament\Tables\Actions\ActionGroup;
 use Filament\Tables\Columns\TextColumn;
 use Filament\Tables\Filters\SelectFilter;
 use Filament\Tables\Table;
@@ -78,7 +79,7 @@ class EmployeeResource extends Resource
                             ->label('Password')
                             ->translateLabel()
                             ->password()
-                            // ->visibleOn('create')
+                            ->visibleOn('create')
                             ->required(function (string $operation) {
                                 return $operation === 'create';
                             }),
@@ -108,9 +109,9 @@ class EmployeeResource extends Resource
                             ->relationship(
                                 'employee',
                                 'name',
-                                modifyQueryUsing: function (Builder $query,Model $record = null) {
-                                    $query->when($record,function($q) use ($record){
-                                        $q->where('id', '!=' , $record->id);
+                                modifyQueryUsing: function (Builder $query, Model $record = null) {
+                                    $query->when($record, function ($q) use ($record) {
+                                        $q->where('id', '!=', $record->id);
                                     });
                                 },
                             )
@@ -279,9 +280,27 @@ class EmployeeResource extends Resource
                     ->preload()
             ])
             ->actions([
-                Tables\Actions\ViewAction::make()->modalWidth('7xl'),
-                Tables\Actions\EditAction::make(),
-                Tables\Actions\DeleteAction::make(),
+                ActionGroup::make([
+                    Action::make('reset_password')
+                        ->requiresConfirmation()
+                        ->modalIcon('heroicon-o-lock-closed')
+                        ->modalDescription('This will reset the selected user\'s login password to "123456"')
+                        ->icon('heroicon-o-lock-closed')
+                        ->action(function (Model $record) {
+                            $record->user->update(['password' => '123456']);
+                            Notification::make()
+                                ->title('Done')
+                                ->body($record->user->name . '\'s password reseted')
+                                ->success()
+                                ->seconds(2)
+                                ->send();
+                        }),
+
+
+                    Tables\Actions\ViewAction::make()->modalWidth('7xl'),
+                    Tables\Actions\EditAction::make(),
+                    Tables\Actions\DeleteAction::make(),
+                ]),
             ])
             ->groupedBulkActions([
                 Tables\Actions\DeleteBulkAction::make()

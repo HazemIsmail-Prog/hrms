@@ -24,13 +24,16 @@ class UserPanelProvider extends PanelProvider
     public function panel(Panel $panel): Panel
     {
         return $panel
+            ->default()
             ->id('user')
             ->path('')
             ->login()
             ->profile(EditProfile::class)
+            ->spa()
             ->colors([
-                'primary' => Color::Indigo,
+                'primary' => Color::Emerald,
             ])
+            ->font('Alexandria')
             ->maxContentWidth('full')
             ->discoverResources(in: app_path('Filament/User/Resources'), for: 'App\\Filament\\User\\Resources')
             ->discoverPages(in: app_path('Filament/User/Pages'), for: 'App\\Filament\\User\\Pages')
